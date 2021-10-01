@@ -1,43 +1,73 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Checkbox, Radio } from "antd";
-import Link from "next/link";
+import { Form, Input, Button, Checkbox, Radio, message, Row, Col } from "antd";
 import style from "../styles/Login.module.css";
+import axios from "axios";
+import { AES } from "crypto-js";
+import { useRouter } from "next/router";
 
 export default function Login() {
-  const [form] = Form.useForm();
+  const router = useRouter();
   const [role, setRole] = useState("student");
 
-  const onFinish = (values: any) => {
+
+  const Login = (data: {role: "student"| "teacher" | "manager"; email:string; password: string}) => {
+    const params = {
+      ...data,
+      password: AES.encrypt(data.password, "cms").toString(),
+    };
+    console.log(params);
+    axios({
+      method: "post",
+      url: "https://cms.chtoma.com/api/login",
+      data: params,
+    })
+      .then((res) => {
+        console.log(res);
+        const { token } = res.data.data;
+        console.log(token);
+        localStorage.setItem("token", token);
+        router.push("dashboard");
+      })
+      .catch((error) => {
+        console.log(error);
+        message.error(error.response.data.msg);
+      });
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!!token) {
+      router.push("dashboard");
+    }
+  }, []);
+
+  const onFinish = (values: {role: "student"| "teacher" | "manager"; email:string; password: string}) => {
     console.log("Success:", values);
-
-    const res = fetch("https://cms.chtoma.com/api/login", {
-        method: "PUT",
-        body: JSON.stringify(values),
-    });
-
-    console.log(res);
+    Login(values);
   };
 
-  const onFinishFailed = (errorInfo: any) => {
-    console.log("Failed:", errorInfo)
-  };
-
-  useEffect(()=>{
-    console.log("roleChange",role);
-  }, [role])
-
+  useEffect(() => {
+    console.log("roleChange", role);
+  }, [role]);
 
   return (
-    <div className={style.login_form_container}>
+    <>
+    <h1 className={style.login_form_title}>Course Management Assistant</h1>
+    <Row justify="center">
+        <Col md={8} sm={24}>
       <Form
         name="basic"
         initialValues={{ remember: true }}
         onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
         className={style.form_style}
       >
         <Form.Item name="role" initialValue="student">
-          <Radio.Group value={role} onChange={(e)=>{setRole(e.target.value)}}>
+          <Radio.Group
+            value={role}
+            onChange={(e) => {
+              setRole(e.target.value);
+            }}
+          >
             <Radio.Button value="student">Student</Radio.Button>
             <Radio.Button value="teacher">Teacher</Radio.Button>
             <Radio.Button value="manager">Manger</Radio.Button>
@@ -69,16 +99,17 @@ export default function Login() {
         </Form.Item>
 
         <Form.Item>
-          {/* <Link href="/">
-            <Button type="primary" htmlType="submit" className={style.submit_button}>
-              Submit
-            </Button>
-          </Link> */}
-          <Button type="primary" htmlType="submit" className={style.submit_button}>
-              Submit
-            </Button>
+          <Button
+            type="primary"
+            htmlType="submit"
+            className={style.login_form_button}
+          >
+            Submit
+          </Button>
         </Form.Item>
       </Form>
-    </div>
+      </Col>
+    </Row>
+    </>
   );
 }

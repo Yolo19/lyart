@@ -32,3 +32,11 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+Plan of Coding Steps:
+
+1.Login Page
+        - 发起网络请求 (axios; 密码要加密，字段名要和接口一致)
+        - success -> 进入dashboard
+        - failed -> 提示失败
+        - localStorage中有token时自动跳转dashboard
