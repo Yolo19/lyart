@@ -40,3 +40,8 @@ Plan of Coding Steps:
         - success -> 进入dashboard
         - failed -> 提示失败
         - localStorage中有token时自动跳转dashboard
+        tip:
+        首次定向到login page
+2. dashboard
+        - 退出登录
+        - 加logo

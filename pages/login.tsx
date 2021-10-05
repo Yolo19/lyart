@@ -10,7 +10,7 @@ export default function Login() {
   const [role, setRole] = useState("student");
 
 
-  const Login = (data: {role: "student"| "teacher" | "manager"; email:string; password: string}) => {
+  const login = (data: {role: "student"| "teacher" | "manager"; email:string; password: string}) => {
     const params = {
       ...data,
       password: AES.encrypt(data.password, "cms").toString(),
@@ -26,7 +26,7 @@ export default function Login() {
         const { token } = res.data.data;
         console.log(token);
         localStorage.setItem("token", token);
-        router.push("dashboard");
+        router.push(`dashboard/${role}`);
       })
       .catch((error) => {
         console.log(error);
@@ -37,18 +37,9 @@ export default function Login() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!!token) {
-      router.push("dashboard");
+      router.push(`dashboard/${role}`);
     }
   }, []);
-
-  const onFinish = (values: {role: "student"| "teacher" | "manager"; email:string; password: string}) => {
-    console.log("Success:", values);
-    Login(values);
-  };
-
-  useEffect(() => {
-    console.log("roleChange", role);
-  }, [role]);
 
   return (
     <>
@@ -58,7 +49,7 @@ export default function Login() {
       <Form
         name="basic"
         initialValues={{ remember: true }}
-        onFinish={onFinish}
+        onFinish={login}
         className={style.form_style}
       >
         <Form.Item name="role" initialValue="student">
