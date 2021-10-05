@@ -10,6 +10,8 @@ export default function Students() {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
+  const [dataSource, setDataSource] = useState([]);
+
   //获取数据并展示到Table这部分还没有写完
   const getStudentList = () => {
     const res = axios({
@@ -18,9 +20,10 @@ export default function Students() {
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) => {
       console.log("res", res);
-      const data = res.data.data.students.map((items: any, index: number) => {
+      const data = res.data.data.students
+      const newData = data.map((items: any, index: number) => {
           return({
-            key: index,
+            id: index,
             name: items.name,
             area: items.country,
             email: items.email,
@@ -29,13 +32,10 @@ export default function Students() {
             join_time: items.createdAt,
           })     
       });
-
       console.log("data", data);
-      return data;
+      setDataSource(data);
     });
   };
-
-  const resData = getStudentList();
 
   const columns = [
     {
@@ -94,7 +94,10 @@ export default function Students() {
       </Row>
       <br />
       <Row>
-        <Table columns={columns} style={{ width: "100%" }} />
+        <Table 
+            columns={columns} 
+            dataSource = {dataSource}
+            style={{ width: "100%" }} />
       </Row>
     </div>
   );
