@@ -19,14 +19,17 @@ export default function Students() {
     }).then((res) => {
       console.log("res", res);
       const data = res.data.data.students.map((items: any, index: number) => {
-        key: index;
-        name: items.name;
-        area: items.country;
-        email: items.email;
-        selected_curriculum: items.course;
-        student_type: items.type.name;
-        join_time: items.createdAt;
+          return({
+            key: index,
+            name: items.name,
+            area: items.country,
+            email: items.email,
+            selected_curriculum: items.course,
+            student_type: items.type.name,
+            join_time: items.createdAt,
+          })     
       });
+
       console.log("data", data);
       return data;
     });
