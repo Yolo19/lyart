@@ -14,10 +14,19 @@ export default function Student() {
 
   const [dataSource, setDataSource] = useState([]);
   const [isAddModuleDisplay,setAddModuleDisplay] = useState(false);
-
+  console.log("2",isAddModuleDisplay)
   const showModel = ()=>{
     setAddModuleDisplay(true);
   }
+
+  const editStudent = ()=>{
+    console.log("111")
+  }
+
+  const deleteStudent = ()=>{
+    console.log("111")
+  }
+
 
   const getStudentList = ()=>{
     const res = axios({
@@ -62,7 +71,7 @@ export default function Student() {
       title: "Selected Curriculum",
       dataIndex: "courses",
       render: (courses) =>
-        courses.map((course, index) => {
+        courses.map((course) => {
             return `${course.name},`;
         }),
     },
@@ -81,8 +90,8 @@ export default function Student() {
       title: "Action",
       render: () => (
         <Space size="middle">
-          <a>Edit</a>
-          <a>Delete</a>
+          <a onClick={editStudent}>Edit</a>
+          <a>Delete onClick={deleteStudent}</a>
         </Space>
       ),
     },

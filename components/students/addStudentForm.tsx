@@ -1,16 +1,28 @@
-import React from "react";
-import { Modal, Button, Form,Input, Select, Divider } from "antd";
+import React, { useEffect, useState } from "react";
+import { Modal, Button, Form, Input, Select, Divider } from "antd";
 import axios from "axios";
 
 export default function AddStudentForm(props) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const[isShow, setShow] = useState(props.visible);
+  
+  useEffect(()=>{
+    setShow(props.visible);
+  },[props.visible])
+
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const { Option } = Select;
 
-  const addStudent = (data: {name: string; email:string; country: string, type: string}) => {
+  const addStudent = (data: {
+    name: string;
+    email: string;
+    country: string;
+    type: string;
+  }) => {
     const params = {
-        ...data,
-        type: parseInt(data.type)
-      };
+      ...data,
+      type: parseInt(data.type),
+    };
     axios({
       method: "post",
       url: "https://cms.chtoma.com/api/students",
@@ -19,55 +31,51 @@ export default function AddStudentForm(props) {
     })
       .then((res) => {
         console.log(res);
+        setShow(false);
       })
       .catch((error) => {
         console.log(error);
       });
   };
-
-  const handleAdd = (values)=>{
-    console.log('Success:', values);
-    addStudent(values);
-  }
-
-  const handleCancel = (e)=>{
-    console.log(e.target.value)
-}
+  
   return (
-    <Modal 
-        title="Add Student" 
-        visible={props.visible}
-        onOk={handleAdd}
-        onCancel={props.onCancel}
-        footer={null}
+    <Modal
+      title="Add Student"
+      visible={isShow}
+      onCancel={props.onCancel}
+      footer={null}
     >
       <Form
-      name="basic"
-      labelCol={{ span: 6 }}
-      wrapperCol={{ span: 16 }}
-      autoComplete="off"
-      onFinish={handleAdd}
-    >
-      <Form.Item
-        label="Name"
-        name="name"
-        rules={[{ required: true, message: 'name is required' }]}
+        name="basic"
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 16 }}
+        autoComplete="off"
+        onFinish={addStudent}
       >
-        <Input />
-      </Form.Item>
+        <Form.Item
+          label="Name"
+          name="name"
+          rules={[{ required: true, message: "name is required" }]}
+        >
+          <Input />
+        </Form.Item>
 
-      <Form.Item
-        label="Email"
-        name="email"
-        rules={[
-            { required: true, message: 'Please input your password!' },
+        <Form.Item
+          label="Email"
+          name="email"
+          rules={[
+            { required: true, message: "Please input your password!" },
             { type: "email", message: "Please enter a valid email address" },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+          ]}
+        >
+          <Input />
+        </Form.Item>
 
-      <Form.Item name="country" label="Area" rules={[{ required: true, message: 'Area is required' }]}>
+        <Form.Item
+          name="country"
+          label="Area"
+          rules={[{ required: true, message: "Area is required" }]}
+        >
           <Select
             //onChange={onGenderChange}
             allowClear
@@ -77,9 +85,13 @@ export default function AddStudentForm(props) {
             <Option value="Canada">Canada</Option>
             <Option value="Australia">Australia</Option>
           </Select>
-      </Form.Item>
+        </Form.Item>
 
-      <Form.Item name="type" label="Student Type" rules={[{ required: true, message: 'Student Type is required' }]}>
+        <Form.Item
+          name="type"
+          label="Student Type"
+          rules={[{ required: true, message: "Student Type is required" }]}
+        >
           <Select
             //onChange={onGenderChange}
             allowClear
@@ -87,24 +99,18 @@ export default function AddStudentForm(props) {
             <Option value="1">Tester</Option>
             <Option value="2">Developer</Option>
           </Select>
-      </Form.Item>
-      
-      <Divider/>
-      <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-          >
+        </Form.Item>
+
+        <Divider />
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
             Add
           </Button>
-          <Button
-            type="primary"
-            onClick={props.onCancel}
-          >
+          <Button type="primary" onClick={props.onCancel}>
             Cancel
           </Button>
-    </Form.Item>
-    </Form>
+        </Form.Item>
+      </Form>
     </Modal>
   );
 }
