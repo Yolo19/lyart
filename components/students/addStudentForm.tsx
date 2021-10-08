@@ -31,7 +31,7 @@ export default function AddStudentForm(props) {
     })
       .then((res) => {
         console.log(res);
-        setShow(false);
+        setShow(props.onCancel);
       })
       .catch((error) => {
         console.log(error);
