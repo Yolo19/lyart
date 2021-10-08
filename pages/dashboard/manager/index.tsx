@@ -8,7 +8,7 @@ import {
   UserOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
-import Students from "./students";
+import Student from "./student/index";
 
 const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
@@ -34,9 +34,9 @@ export default function Dashboard() {
 
   const changeContent = (e: any) => {
     console.log("123");
-    router.push("manager/students");
+    router.push("manager/student");
     if (e.key === "student_list") {
-      router.push("manager/students");
+      router.push("manager/student");
     }
   };
 
@@ -100,8 +100,7 @@ export default function Dashboard() {
             minHeight: 280,
           }}
         >
-          {/* Content */}
-          <Students />
+          <Student />
         </Content>
       </Layout>
     </Layout>

@@ -34,12 +34,12 @@ export default function Login() {
       });
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!!token) {
-      router.push(`dashboard/${role}`);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (!!token) {
+  //     router.push(`dashboard/manger/${role}`);
+  //   }
+  // }, []);
 
   return (
     <>
