@@ -14,10 +14,10 @@ export default function Student() {
 
   const [dataSource, setDataSource] = useState([]);
   const [isAddModuleDisplay,setAddModuleDisplay] = useState(false);
-  console.log("2",isAddModuleDisplay)
-  const showModel = ()=>{
-    setAddModuleDisplay(true);
-  }
+
+  // const showModel = ()=>{
+  //   setAddModuleDisplay(true);
+  // }
 
   const editStudent = ()=>{
     console.log("111")
@@ -57,11 +57,31 @@ export default function Student() {
     {
       title: "Name",
       dataIndex: "name",
+      sortDirections: ['descend', 'ascend'],
+      sorter: (a, b) => a.name.substr(0,1).charCodeAt(0) - b.name.substr(0,1).charCodeAt(0) ,
     },
     {
       title: "Area",
       dataIndex: "country",
-      //sorter: (a, b) => a.age - b.age,
+      filters: [
+        {
+          text: 'China',
+          value: 'China',
+        },
+        {
+          text: 'New Zealand',
+          value: 'New Zealand',
+        },
+        {
+          text: 'Canada',
+          value: 'Canada',
+        },
+        {
+          text: 'Australia',
+          value: 'Australia',
+        },
+      ],
+      onFilter: (value, record) => record.country.indexOf(value) === 0,
     },
     {
       title: "Email",
@@ -91,7 +111,7 @@ export default function Student() {
       render: () => (
         <Space size="middle">
           <a onClick={editStudent}>Edit</a>
-          <a>Delete onClick={deleteStudent}</a>
+          <a onClick={deleteStudent}>Delete</a>
         </Space>
       ),
     },
@@ -115,7 +135,7 @@ export default function Student() {
         <Table 
             columns={columns} 
             dataSource = {dataSource}
-            style={{ width: "100%" }} />
+            style={{ width: "100%"}} />
       </Row>
       <AddStudentForm visible={isAddModuleDisplay} onCancel={()=>setAddModuleDisplay(false)}/>
     </div>
