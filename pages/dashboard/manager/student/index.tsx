@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import * as _ from "lodash";
 import axios from "axios";
 import {
   Table,
@@ -22,10 +23,14 @@ export default function Student() {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
+  const [totalItems, setTotalItems] = useState();
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1)
   const [dataSource, setDataSource] = useState([]);
   const [isAddModuleDisplay, setAddModuleDisplay] = useState(false);
   const [isEditModuleDisplay, setEditModuleDisplay] = useState(false);
   const [editInfo, setEditInfo] = useState();
+  const [searchValue, setSearchValue] = useState();
 
   // const showModel = ()=>{
   //   setAddModuleDisplay(true);
@@ -34,8 +39,6 @@ export default function Student() {
   const editStudent = (record) => {
       setEditModuleDisplay(true);
       setEditInfo(record);
-      setTimeout(()=>{console.log("edit", editInfo)},1);
-      
   };
 
   const deleteStudentFromApi = (id:string)=>{
@@ -54,10 +57,31 @@ export default function Student() {
     deleteStudentFromApi(id);
   };
 
+  const changePage = (current:number) =>{
+    setCurrentPage(current);
+  }
+
   const getStudentList = () => {
     const res = axios({
       method: "get",
-      url: `https://cms.chtoma.com/api/students/?page=1&limit=10`,
+      url: `https://cms.chtoma.com/api/students/?page=${currentPage}&limit=${pageSize}`,
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((res) => {
+      console.log("res", res);
+      const data = res.data.data.students;
+      const total = res.data.data.total;
+      console.log("data", data);
+      setTotalItems(total);
+      setDataSource(data);
+    });
+  };
+
+  const searchStudent = (name)=>{
+    console.log("value", name);
+    const queryName = name.toString();
+    const res = axios({
+      method: "get",
+      url: `https://cms.chtoma.com/api/students/?query=${queryName}`,
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) => {
       console.log("res", res);
@@ -65,11 +89,15 @@ export default function Student() {
       console.log("data", data);
       setDataSource(data);
     });
-  };
+  }
 
   useEffect(() => {
     getStudentList();
-  }, [isEditModuleDisplay, isAddModuleDisplay]);
+  }, [isEditModuleDisplay, isAddModuleDisplay, currentPage, pageSize]);
+
+
+  const mapDebounceHandler = _.debounce(searchStudent, 1000);
+
 
   const columns = [
     {
@@ -78,6 +106,7 @@ export default function Student() {
       render: (_1, _2, index) => index + 1,
     },
     {
+      key: "name",
       title: "Name",
       dataIndex: "name",
       sortDirections: ["descend", "ascend"],
@@ -85,6 +114,7 @@ export default function Student() {
         a.name.substr(0, 1).charCodeAt(0) - b.name.substr(0, 1).charCodeAt(0),
     },
     {
+      key: "area",
       title: "Area",
       dataIndex: "country",
       filters: [
@@ -108,10 +138,12 @@ export default function Student() {
       onFilter: (value, record) => record.country.indexOf(value) === 0,
     },
     {
+      key: "email",
       title: "Email",
       dataIndex: "email",
     },
     {
+      key: "courses",
       title: "Selected Curriculum",
       dataIndex: "courses",
       width: "20%",
@@ -121,11 +153,13 @@ export default function Student() {
         }),
     },
     {
+      key: "type",
       title: "Student Type",
       dataIndex: "type",
       render: (type) => type.name,
     },
     {
+      key: "createdAt",
       title: "Join Time",
       dataIndex: "createdAt",
       render: (value: string) =>
@@ -166,7 +200,9 @@ export default function Student() {
           </Button>
         </Col>
         <Col span={6}>
-          <Search placeholder="Search by name" />
+          <Search placeholder="Search by name" 
+            onChange={(e)=>{mapDebounceHandler(e.target.value)}}        
+          />
         </Col>
       </Row>
       <br />
@@ -176,6 +212,10 @@ export default function Student() {
           dataSource={dataSource}
           style={{ width: "100%" }}
           scroll={{ y: 500 }}
+          pagination={{
+            total: totalItems,
+            onChange: changePage,
+          }}
         />
       </Row>
 
