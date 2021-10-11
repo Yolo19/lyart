@@ -14,6 +14,7 @@ import style from "../../../../styles/Dashboard.module.css";
 import { PlusOutlined } from "@ant-design/icons";
 import { formatDistanceToNow } from "date-fns";
 import AddStudentForm from "../../../../components/students/addStudentForm";
+import EditStudentForm from "../../../../components/students/editStudentForm";
 
 const { Search } = Input;
 
@@ -23,24 +24,28 @@ export default function Student() {
 
   const [dataSource, setDataSource] = useState([]);
   const [isAddModuleDisplay, setAddModuleDisplay] = useState(false);
+  const [isEditModuleDisplay, setEditModuleDisplay] = useState(false);
+  const [editInfo, setEditInfo] = useState();
 
   // const showModel = ()=>{
   //   setAddModuleDisplay(true);
   // }
 
-  const editStudent = () => {
-    console.log("111");
+  const editStudent = (record) => {
+      setEditModuleDisplay(true);
+      setEditInfo(record);
+      setTimeout(()=>{console.log("edit", editInfo)},1);
+      
   };
 
   const deleteStudentFromApi = (id:string)=>{
-    // const res = axios({
-    //   method: "delete",
-    //   url: "https://cms.chtoma.com/api/students",
-    //   data: id,
-    //   headers: { Authorization: `Bearer ${token}` },
-    // }).then((res) => {
-    //   console.log("res", res);
-    // });
+    const res = axios({
+      method: "delete",
+      url: `https://cms.chtoma.com/api/students/${id}`,
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((res) => {
+      console.log("res", res);
+    });
   }
 
   const deleteStudent = (record) => {
@@ -64,28 +69,24 @@ export default function Student() {
 
   useEffect(() => {
     getStudentList();
-    console.log("111", dataSource);
-  }, []);
+  }, [isEditModuleDisplay, isAddModuleDisplay]);
 
   const columns = [
     {
       key: "number",
       title: "No",
       render: (_1, _2, index) => index + 1,
-      width: 100,
     },
     {
       title: "Name",
       dataIndex: "name",
       sortDirections: ["descend", "ascend"],
-      width: 150,
       sorter: (a, b) =>
         a.name.substr(0, 1).charCodeAt(0) - b.name.substr(0, 1).charCodeAt(0),
     },
     {
       title: "Area",
       dataIndex: "country",
-      width: 150,
       filters: [
         {
           text: "China",
@@ -109,11 +110,11 @@ export default function Student() {
     {
       title: "Email",
       dataIndex: "email",
-      width: 200,
     },
     {
       title: "Selected Curriculum",
       dataIndex: "courses",
+      width: "20%",
       render: (courses) =>
         courses.map((course) => {
           return `${course.name},`;
@@ -123,26 +124,23 @@ export default function Student() {
       title: "Student Type",
       dataIndex: "type",
       render: (type) => type.name,
-      width: 100,
     },
     {
       title: "Join Time",
       dataIndex: "createdAt",
-      width: 100,
       render: (value: string) =>
         formatDistanceToNow(new Date(value), { addSuffix: true }),
     },
     {
       key: "action",
       title: "Action",
-      width: 150,
       render: (record) => (
         <Space size="middle">
-        <a onClick={editStudent}>Edit</a>
+        <a onClick={()=>editStudent(record)}>Edit</a>
         <Popconfirm
           placement="top"
           title={"Are you sure to delete?"}
-          onConfirm={deleteStudent(record)}
+          onConfirm={()=>deleteStudent(record)}
           okText="Confirm"
           cancelText="Cancel"
         >
@@ -185,6 +183,12 @@ export default function Student() {
         visible={isAddModuleDisplay}
         onCancel={() => setAddModuleDisplay(false)}
       />
+      <EditStudentForm
+        visible={isEditModuleDisplay}
+        onCancel={() => setEditModuleDisplay(false)}
+        editInfo={editInfo}
+      />
+      
     </div>
   );
 }
