@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as _ from "lodash";
 import axios from "axios";
+import { AppLayout } from "../../../../components/layout/layout";
 import {
   Table,
   Button,
@@ -9,52 +10,45 @@ import {
   Col,
   Input,
   Popconfirm,
-  message,
+  Modal,
+  message
 } from "antd";
 import style from "../../../../styles/Dashboard.module.css";
 import { PlusOutlined } from "@ant-design/icons";
 import { formatDistanceToNow } from "date-fns";
 import AddStudentForm from "../../../../components/students/addStudentForm";
 import EditStudentForm from "../../../../components/students/editStudentForm";
+import {fetchStudentList, deleteStudent, searchStudent} from "../../../../lib/api"
+import Link from 'next/link';
+import { StudentList } from "../../../../lib/model/student";
 
 const { Search } = Input;
 
 export default function Student() {
-  const token =
+  const token = 
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const [totalItems, setTotalItems] = useState();
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1)
   const [dataSource, setDataSource] = useState([]);
-  const [isAddModuleDisplay, setAddModuleDisplay] = useState(false);
-  const [isEditModuleDisplay, setEditModuleDisplay] = useState(false);
-  const [editInfo, setEditInfo] = useState();
+  const [isModalDisplay, setModalDisplay] = useState(false);
+  const [editInfo, setEditInfo] = useState(null);
   const [searchValue, setSearchValue] = useState();
 
-  // const showModel = ()=>{
-  //   setAddModuleDisplay(true);
-  // }
-
   const editStudent = (record) => {
-      setEditModuleDisplay(true);
       setEditInfo(record);
+      setModalDisplay(true);
+      //console.log("editInfo",editInfo)
   };
 
-  const deleteStudentFromApi = (id:string)=>{
-    const res = axios({
-      method: "delete",
-      url: `https://cms.chtoma.com/api/students/${id}`,
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => {
-      console.log("res", res);
-    });
-  }
-
-  const deleteStudent = (record) => {
-    console.log("222", record);
+  const handleDeleteStudent = (record) => {
     const id = record.id.toString();
-    deleteStudentFromApi(id);
+    deleteStudent(id)
+      .then((res)=>{
+        message.success("Success to delete it")
+        getStudentList();
+      }).catch((error)=>{message.error(error.response.data.msg);});   
   };
 
   const changePage = (current:number) =>{
@@ -62,41 +56,32 @@ export default function Student() {
   }
 
   const getStudentList = () => {
-    const res = axios({
-      method: "get",
-      url: `https://cms.chtoma.com/api/students/?page=${currentPage}&limit=${pageSize}`,
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => {
-      console.log("res", res);
-      const data = res.data.data.students;
-      const total = res.data.data.total;
-      console.log("data", data);
-      setTotalItems(total);
-      setDataSource(data);
-    });
+    fetchStudentList(currentPage, pageSize)
+      .then((res)=>{
+        console.log("res", res);
+        const data = res.data.data.students;
+        const total = res.data.data.total;
+        console.log("data", data);
+        setTotalItems(total);
+        setDataSource(data);
+      })
   };
 
-  const searchStudent = (name)=>{
-    console.log("value", name);
+  const handleSearchStudent = (name)=>{
     const queryName = name.toString();
-    const res = axios({
-      method: "get",
-      url: `https://cms.chtoma.com/api/students/?query=${queryName}`,
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => {
-      console.log("res", res);
+    searchStudent(currentPage, pageSize, queryName)
+    .then((res) => {
       const data = res.data.data.students;
-      console.log("data", data);
       setDataSource(data);
     });
   }
 
   useEffect(() => {
     getStudentList();
-  }, [isEditModuleDisplay, isAddModuleDisplay, currentPage, pageSize]);
+  }, [currentPage, pageSize]);
 
 
-  const mapDebounceHandler = _.debounce(searchStudent, 1000);
+  const mapDebounceHandler = _.debounce(handleSearchStudent, 1000);
 
 
   const columns = [
@@ -112,6 +97,13 @@ export default function Student() {
       sortDirections: ["descend", "ascend"],
       sorter: (a, b) =>
         a.name.substr(0, 1).charCodeAt(0) - b.name.substr(0, 1).charCodeAt(0),
+        render: (_, record) => {
+          return (
+            <Link href={'/dashboard/manager/student/${record.id}'}>
+              {record.name}
+            </Link>
+          );
+        },
     },
     {
       key: "area",
@@ -147,16 +139,30 @@ export default function Student() {
       title: "Selected Curriculum",
       dataIndex: "courses",
       width: "20%",
-      render: (courses) =>
-        courses.map((course) => {
-          return `${course.name},`;
-        }),
+      render: (courses) => {
+        const course = courses.map((item) => {
+          return `${item.name}`; 
+        });
+        return course.join(',')
+      }
+        
     },
     {
       key: "type",
       title: "Student Type",
       dataIndex: "type",
-      render: (type) => type.name,
+      filters: [
+        {
+          text: "tester",
+          value: "tester",
+        },
+        {
+          text: "developer",
+          value: "developer",
+        },
+      ],
+      onFilter: (value, record) => record.type?.name.indexOf(value) === 0,
+      render: (type) => type?.name,
     },
     {
       key: "createdAt",
@@ -174,7 +180,7 @@ export default function Student() {
         <Popconfirm
           placement="top"
           title={"Are you sure to delete?"}
-          onConfirm={()=>deleteStudent(record)}
+          onConfirm={()=>handleDeleteStudent(record)}
           okText="Confirm"
           cancelText="Cancel"
         >
@@ -186,14 +192,17 @@ export default function Student() {
   ];
 
   return (
+    <AppLayout>
     <div className={style.student_list_container}>
       <Row>
         <Col span={18}>
           <Button
+            id="add_button"
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => {
-              setAddModuleDisplay(true);
+              setModalDisplay(true);
+              setEditInfo(null);
             }}
           >
             Add
@@ -219,16 +228,27 @@ export default function Student() {
         />
       </Row>
 
-      <AddStudentForm
-        visible={isAddModuleDisplay}
-        onCancel={() => setAddModuleDisplay(false)}
-      />
-      <EditStudentForm
-        visible={isEditModuleDisplay}
-        onCancel={() => setEditModuleDisplay(false)}
-        editInfo={editInfo}
-      />
-      
+      <Modal
+        title={!!editInfo ? 'Edit Student' : 'Add Student'}
+        centered
+        visible={isModalDisplay}
+        onCancel={() => {
+          setModalDisplay(false); 
+          setEditInfo(null);
+        }}
+        footer={null}
+      >
+        <EditStudentForm
+          visible={isModalDisplay}
+          editInfo={editInfo}
+          onCancel={() => {
+            setModalDisplay(false); 
+            setEditInfo(null);
+          }}
+          update={()=>{getStudentList(); setModalDisplay(false)}}
+        />
+      </Modal>
     </div>
+    </AppLayout>
   );
 }

@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button, Form, Input, Select, Divider } from "antd";
 import axios from "axios";
+import { AddStudentFormValue } from "../../lib/model/student"
 
 export default function AddStudentForm(props) {
   const[isShow, setShow] = useState(props.visible);
+  const editInfo = props.editInfo;
+  const initialFormValues = {
+      name: editInfo?.name,
+      email: editInfo?.email,
+      country: editInfo?.country,
+      type: editInfo?.type.name,
+      id: editInfo?.id
+  };
   
   useEffect(()=>{
     setShow(props.visible);
@@ -13,12 +22,7 @@ export default function AddStudentForm(props) {
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const { Option } = Select;
 
-  const addStudent = (data: {
-    name: string;
-    email: string;
-    country: string;
-    type: string;
-  }) => {
+  const handleAddStudent = (data: AddStudentFormValue) => {
     const params = {
       ...data,
       type: parseInt(data.type),
@@ -50,7 +54,7 @@ export default function AddStudentForm(props) {
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 16 }}
         autoComplete="off"
-        onFinish={addStudent}
+        onFinish={handleAddStudent}
       >
         <Form.Item
           label="Name"

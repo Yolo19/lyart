@@ -1,45 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Button, Checkbox, Radio, message, Row, Col } from "antd";
 import style from "../styles/Login.module.css";
-import axios from "axios";
-import { AES } from "crypto-js";
 import { useRouter } from "next/router";
+import { login } from "../lib/api";
+import { LoginFormValues} from "../lib/model/login";
 
 export default function Login() {
   const router = useRouter();
   const [role, setRole] = useState("student");
 
 
-  const login = (data: {role: "student"| "teacher" | "manager"; email:string; password: string}) => {
-    const params = {
-      ...data,
-      password: AES.encrypt(data.password, "cms").toString(),
-    };
-    console.log(params);
-    axios({
-      method: "post",
-      url: "https://cms.chtoma.com/api/login",
-      data: params,
-    })
-      .then((res) => {
-        console.log(res);
+  const loginToServer = (loginRequest: LoginFormValues) => {
+    login(loginRequest)
+      .then((res)=>{
         const { token } = res.data.data;
-        console.log(token);
         localStorage.setItem("token", token);
         router.push(`dashboard/${role}`);
-      })
-      .catch((error) => {
-        console.log(error);
+      }).catch((error)=>{
         message.error(error.response.data.msg);
-      });
+      })
+
+    
   };
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (!!token) {
-  //     router.push(`dashboard/manger/${role}`);
-  //   }
-  // }, []);
+
 
   return (
     <>
@@ -49,7 +33,7 @@ export default function Login() {
       <Form
         name="basic"
         initialValues={{ remember: true }}
-        onFinish={login}
+        onFinish={loginToServer}
         className={style.form_style}
       >
         <Form.Item name="role" initialValue="student">

@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Button, Form, Input, Select, Divider } from "antd";
+import { Modal, Button, Form, Input, Select, Divider, Space, message } from "antd";
 import axios from "axios";
+import { addStudent, editStudent } from "../../lib/api";
 
 export default function EditStudentForm(props) {
-  const[isShow, setShow] = useState(props.visible);
+  const getStudents = props.update;
+  const [form] = Form.useForm();
   const editInfo = props.editInfo;
+  console.log("editInfo2", editInfo)
   const initialFormValues = {
       name: editInfo?.name,
       email: editInfo?.email,
@@ -13,56 +16,49 @@ export default function EditStudentForm(props) {
       id: editInfo?.id
   };
 
-  useEffect(()=>{
-    setShow(props.visible);
-  },[props.visible])
-
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const { Option } = Select;
 
-  const addStudent = (data: {
+  const handleStudent = (data: {
     id: number
     name: string;
     email: string;
     country: string;
     type: string;
-  }) => {
+  })=>{
     const params = {
       ...data,
       type: parseInt(data.type),
-      id: editInfo.id
+      id: editInfo?.id,
     };
-    console.log("param", params);
-
-    axios({
-      method: "put",
-      url: "https://cms.chtoma.com/api/students",
-      data: params,
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        console.log(res);
-        setShow(props.onCancel);
+    if(!editInfo){
+      addStudent(params)
+      .then(()=>{
+        message.success("Success to add the student")
+        getStudents();
+      }).catch((error)=>{
+        message.error(error.response.data.msg);
       })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+    } else {
+      editStudent(params)
+      .then(()=>{
+        message.success("Success to edit the student")
+        getStudents();
+      }).catch((error)=>{
+        message.error(error.response.data.msg);
+      })
+    }
+  }
+
   
   return (
-    <Modal
-      title="Edit Student"
-      visible={isShow}
-      onCancel={props.onCancel}
-      footer={null}
-    >
       <Form
-        name="basic"
+        form={form}
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 16 }}
         autoComplete="off"
-        onFinish={addStudent}
+        onFinish={handleStudent}
         initialValues={initialFormValues}
       >
         <Form.Item
@@ -81,7 +77,7 @@ export default function EditStudentForm(props) {
             { type: "email", message: "Please enter a valid email address" },
           ]}
         >
-          <Input value="editInfo"/>
+          <Input/>
         </Form.Item>
 
         <Form.Item
@@ -113,17 +109,24 @@ export default function EditStudentForm(props) {
             <Option value="2">Developer</Option>
           </Select>
         </Form.Item>
-
         <Divider />
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Update
+        <Form.Item shouldUpdate={true}>
+        {() => (
+          <Space>
+          <Button
+            type="primary"
+            htmlType="submit"
+            onClick={props.onCancel}
+          >
+            {!!editInfo ? 'Update' : 'Add'}
           </Button>
           <Button type="primary" onClick={props.onCancel}>
             Cancel
           </Button>
-        </Form.Item>
+        </Space>
+        )}
+          
+      </Form.Item>
       </Form>
-    </Modal>
   );
 }
