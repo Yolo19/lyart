@@ -1,7 +1,6 @@
 import React from "react";
-import { fetchStudentById, fetchStudentList } from "../../../../lib/api";
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps(context:any) {
     const { id } = context.params;
 
     return {

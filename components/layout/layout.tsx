@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { PropsWithChildren, ReactFragment, useState } from "react";
 import { Layout, Menu, Button } from "antd";
-import axios from "axios";
 import { useRouter } from "next/router";
 import {
   MenuUnfoldOutlined,
@@ -14,7 +13,7 @@ import AppBreadcrumb from "../breadcrumb"
 const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
 
-export function AppLayout(props) {
+export function AppLayout(props: any) {
     const [menuName, setMenuName] = useState([]);
     const router = useRouter();
     const path = router.pathname;

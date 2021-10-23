@@ -1,13 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button, Form, Input, Select, Divider, Space, message } from "antd";
-import axios from "axios";
 import { addStudent, editStudent } from "../../lib/api";
 
-export default function EditStudentForm(props) {
+interface AddStudentFormProps {
+  visible: boolean;
+  editInfo: {
+    name: string,
+    email: string,
+    country: string,
+    type: {id: number; name: string},
+    id: string,
+  }
+  update: ()=> void;
+  onCancel: ()=> void;
+}
+
+export default function EditStudentForm(props: AddStudentFormProps) {
   const getStudents = props.update;
   const [form] = Form.useForm();
   const editInfo = props.editInfo;
-  console.log("editInfo2", editInfo)
   const initialFormValues = {
       name: editInfo?.name,
       email: editInfo?.email,
@@ -16,8 +27,6 @@ export default function EditStudentForm(props) {
       id: editInfo?.id
   };
 
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const { Option } = Select;
 
   const handleStudent = (data: {
@@ -109,7 +118,9 @@ export default function EditStudentForm(props) {
             <Option value="2">Developer</Option>
           </Select>
         </Form.Item>
+
         <Divider />
+
         <Form.Item shouldUpdate={true}>
         {() => (
           <Space>
@@ -125,7 +136,6 @@ export default function EditStudentForm(props) {
           </Button>
         </Space>
         )}
-          
       </Form.Item>
       </Form>
   );

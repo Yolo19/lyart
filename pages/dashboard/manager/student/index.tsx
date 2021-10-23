@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import * as _ from "lodash";
-import axios from "axios";
 import { AppLayout } from "../../../../components/layout/layout";
 import {
   Table,
@@ -16,17 +15,23 @@ import {
 import style from "../../../../styles/Dashboard.module.css";
 import { PlusOutlined } from "@ant-design/icons";
 import { formatDistanceToNow } from "date-fns";
-import AddStudentForm from "../../../../components/students/addStudentForm";
 import EditStudentForm from "../../../../components/students/editStudentForm";
 import {fetchStudentList, deleteStudent, searchStudent} from "../../../../lib/api"
 import Link from 'next/link';
-import { StudentList } from "../../../../lib/model/student";
 
 const { Search } = Input;
 
+interface Record  {
+  country: string;
+  course: Array<any>;
+  createdAt: string;
+  email: string;
+  id: number;
+  name: string;
+  type?: {id: number, name: string} | null;
+}
+
 export default function Student() {
-  const token = 
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const [totalItems, setTotalItems] = useState();
   const [pageSize, setPageSize] = useState(10);
@@ -34,20 +39,21 @@ export default function Student() {
   const [dataSource, setDataSource] = useState([]);
   const [isModalDisplay, setModalDisplay] = useState(false);
   const [editInfo, setEditInfo] = useState(null);
-  const [searchValue, setSearchValue] = useState();
+  //const [searchValue, setSearchValue] = useState();
 
-  const editStudent = (record) => {
+  const editStudent = (record: Record) => {
       setEditInfo(record);
+      console.log("record", record)
       setModalDisplay(true);
       //console.log("editInfo",editInfo)
   };
 
-  const handleDeleteStudent = (record) => {
+  const handleDeleteStudent = (record: Record) => {
     const id = record.id.toString();
     deleteStudent(id)
       .then((res)=>{
         message.success("Success to delete it")
-        getStudentList();
+        getStudentList(currentPage, pageSize);
       }).catch((error)=>{message.error(error.response.data.msg);});   
   };
 
@@ -55,7 +61,7 @@ export default function Student() {
     setCurrentPage(current);
   }
 
-  const getStudentList = () => {
+  const getStudentList = (currentPage: number, pageSize: number) => {
     fetchStudentList(currentPage, pageSize)
       .then((res)=>{
         console.log("res", res);
@@ -67,7 +73,7 @@ export default function Student() {
       })
   };
 
-  const handleSearchStudent = (name)=>{
+  const handleSearchStudent = (name: string)=>{
     const queryName = name.toString();
     searchStudent(currentPage, pageSize, queryName)
     .then((res) => {
@@ -77,7 +83,7 @@ export default function Student() {
   }
 
   useEffect(() => {
-    getStudentList();
+    getStudentList(currentPage, pageSize);
   }, [currentPage, pageSize]);
 
 
@@ -88,22 +94,22 @@ export default function Student() {
     {
       key: "number",
       title: "No",
-      render: (_1, _2, index) => index + 1,
+      render: (_1: Record , _2: Record , index: number) => index + 1,
     },
     {
       key: "name",
       title: "Name",
       dataIndex: "name",
-      sortDirections: ["descend", "ascend"],
-      sorter: (a, b) =>
+      sorter: (a:Record , b:Record ) =>
         a.name.substr(0, 1).charCodeAt(0) - b.name.substr(0, 1).charCodeAt(0),
-        render: (_, record) => {
+        render: (_: string , record:Record ) => {
           return (
             <Link href={'/dashboard/manager/student/${record.id}'}>
               {record.name}
             </Link>
           );
         },
+      sortDirections: ["descend", "ascend"],
     },
     {
       key: "area",
@@ -127,7 +133,7 @@ export default function Student() {
           value: "Australia",
         },
       ],
-      onFilter: (value, record) => record.country.indexOf(value) === 0,
+      onFilter: (value: string, record: Record) => record.country.indexOf(value) === 0,
     },
     {
       key: "email",
@@ -139,7 +145,7 @@ export default function Student() {
       title: "Selected Curriculum",
       dataIndex: "courses",
       width: "20%",
-      render: (courses) => {
+      render: (courses: [{courseId: number, id: number, name: string}]) => {
         const course = courses.map((item) => {
           return `${item.name}`; 
         });
@@ -161,8 +167,8 @@ export default function Student() {
           value: "developer",
         },
       ],
-      onFilter: (value, record) => record.type?.name.indexOf(value) === 0,
-      render: (type) => type?.name,
+      onFilter: (value: string, record: Record) => record.type?.name.indexOf(value) === 0,
+      render: (type: {id: number | string; name: string | null}) => type?.name,
     },
     {
       key: "createdAt",
@@ -174,7 +180,7 @@ export default function Student() {
     {
       key: "action",
       title: "Action",
-      render: (record) => (
+      render: (record: Record) => (
         <Space size="middle">
         <a onClick={()=>editStudent(record)}>Edit</a>
         <Popconfirm
@@ -237,6 +243,7 @@ export default function Student() {
           setEditInfo(null);
         }}
         footer={null}
+        destroyOnClose={true}
       >
         <EditStudentForm
           visible={isModalDisplay}
@@ -245,7 +252,7 @@ export default function Student() {
             setModalDisplay(false); 
             setEditInfo(null);
           }}
-          update={()=>{getStudentList(); setModalDisplay(false)}}
+          update={()=>{getStudentList(currentPage, pageSize); setModalDisplay(false)}}
         />
       </Modal>
     </div>

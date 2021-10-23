@@ -1,8 +1,7 @@
 import axios from "axios";
 import { AES } from "crypto-js";
-import { message} from "antd";
 import { LoginRequest } from "./model/login";
-import { AddStudentRequest } from "./model/student"
+import { AddStudentRequest, EditStudentFormValue } from "./model/student"
 
 
 const baseURL = "https://cms.chtoma.com/api";
@@ -15,7 +14,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  if (!config.url.includes('login')) {
+  if (!config.url?.includes('login')) {
     return {
       ...config,
       headers: {
@@ -41,15 +40,15 @@ export const login = (data: LoginRequest) => {
     return axiosInstance.post(`${baseURL}/logout`, {});
   };
 
-  export const fetchStudentList = (currentPage, pageSize) => {
+  export const fetchStudentList = (currentPage: number, pageSize: number) => {
     return axiosInstance.get(`${baseURL}/students/?page=${currentPage}&limit=${pageSize}`);
   };
 
-  export const addStudent = (params:AddStudentRequest) => {
+  export const addStudent = (params: AddStudentRequest) => {
     return axiosInstance.post(`${baseURL}/students`, params);
   };
 
-  export const editStudent = (params:AddStudentRequest) => {
+  export const editStudent = (params: EditStudentFormValue) => {
     return axiosInstance.put(`${baseURL}/students`, params);
   };
 
@@ -76,7 +75,7 @@ export const deleteStudent = (id:string)=>{
   return axiosInstance.delete(`${baseURL}/students/${id}`);
 }
 
-export const searchStudent = (currentPage, pageSize, queryName)=>{
+export const searchStudent = (currentPage: number, pageSize: number, queryName: string)=>{
   return axiosInstance.get(`${baseURL}/students/?page=${currentPage}&limit=${pageSize}&query=${queryName}`);
 }
 
