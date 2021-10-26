@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button, Form, Input, Select, Divider, Space, message } from "antd";
 import { addStudent, editStudent } from "../../lib/api";
+import {Record} from "../../lib/model/student";
 
 interface AddStudentFormProps {
   visible: boolean;
-  editInfo: {
-    name: string,
-    email: string,
-    country: string,
-    type: {id: number; name: string},
-    id: string,
-  }
+  editInfo: Record
   update: ()=> void;
   onCancel: ()=> void;
 }

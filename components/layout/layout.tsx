@@ -8,7 +8,8 @@ import {
   VideoCameraOutlined,
 } from "@ant-design/icons";
 import {LoginOut} from "../../lib/api";
-import AppBreadcrumb from "../breadcrumb"
+import AppBreadcrumb from "../breadcrumb";
+import {SideNav, routes} from "../../lib/model/constant/routes"
 
 const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
@@ -22,7 +23,27 @@ export function AppLayout(props: any) {
     const toggle = () => {
       setCollapsed(!collapsed);
     };
-  
+    const sideNave: SideNav[] | undefined = routes.get("manager")
+
+    const renderMenuItems =(data: SideNav[]) =>{
+      console.log("123")
+      return data.map((item, index)=>{
+        //const key = genKey(item);
+        if(item.subNav){
+          return<SubMenu title={item.title} icon={item.icon}>
+            {renderMenuItems(item.subNav)}
+          </SubMenu>
+        } else {
+          return <Menu.Item>{item.title}</Menu.Item>
+        }
+      })
+      }
+
+
+    const genKey = (data: SideNav): string=>{
+      return data.title;
+    }
+
     const handleLoginOut = () => {
         LoginOut()
           .then(()=>{
@@ -31,7 +52,6 @@ export function AppLayout(props: any) {
           }).catch((err)=>{
             console.log(err);
           });
-        
     };
   
     const changeContent = (e: any) => {
@@ -64,7 +84,8 @@ export function AppLayout(props: any) {
             defaultSelectedKeys={["1"]}
             onClick={(e)=>changeContent(e)}
           >
-            <Menu.Item key="overview" icon={<UserOutlined />}>
+            {renderMenuItems(sideNave)}
+            {/* <Menu.Item key="overview" icon={<UserOutlined />}>
               Overview
             </Menu.Item>
             <SubMenu key="student" icon={<UserOutlined />} title="Student">
@@ -80,7 +101,7 @@ export function AppLayout(props: any) {
             </SubMenu>
             <Menu.Item key="message" icon={<VideoCameraOutlined />}>
               Message
-            </Menu.Item>
+            </Menu.Item> */}
           </Menu>
         </Sider>
         <Layout className="site-layout">

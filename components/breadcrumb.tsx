@@ -2,7 +2,7 @@ import { Breadcrumb } from "antd";
 import Link from "next/link";
 
 
-export default function AppBreadcrumb (props) {
+export default function AppBreadcrumb (props: {sub: string[]}) {
   const pathNameArray = props.sub;
   console.log("props.sub", props.sub)
   return (

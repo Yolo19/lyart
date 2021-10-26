@@ -75,3 +75,5 @@ const message: SideNav={
 export const routes: Map<Role, SideNav[]> = new Map([
     [Roles.manager, [overview, students, teachers, courses, message]],
   ]);
+
+  
