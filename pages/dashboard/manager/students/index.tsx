@@ -40,7 +40,6 @@ export default function Student() {
     setEditInfo(record);
     console.log("record", record);
     setModalDisplay(true);
-    //console.log("editInfo",editInfo)
   };
 
   const handleDeleteStudent = (record: Record) => {

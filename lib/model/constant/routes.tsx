@@ -33,10 +33,11 @@ export interface SideNav {
     path: string[];
     icon?: JSX.Element;
     subNav?: SideNav[];
+    hideLinkInBreadcrumb?: boolean; // 当前面包屑上的链接是否应该被隐藏
 }
 
 const overview: SideNav={
-    title: "Message",
+    title: "Overview",
     path: [],
     icon: <DashboardOutlined />,
 }
@@ -46,6 +47,7 @@ const students: SideNav={
     path: [RoutePath.students],
     icon: <SolutionOutlined />,
     subNav: [{title: "Student List", path:[""], icon: <TeamOutlined />}],
+    hideLinkInBreadcrumb: true,
 }
 
 const teachers: SideNav={
@@ -53,6 +55,7 @@ const teachers: SideNav={
     path: [RoutePath.teachers],
     icon: <DeploymentUnitOutlined />,
     subNav: [{title: "Teacher List", path:[""], icon: <TeamOutlined />}],
+    hideLinkInBreadcrumb: true,
 }
 
 const courses: SideNav={
@@ -64,6 +67,7 @@ const courses: SideNav={
         {title: "Add Course", path:[RoutePath.addCourse], icon: <TeamOutlined />},
         {title: "Edit Course", path:[RoutePath.editCourse], icon: <TeamOutlined />}
     ],
+    hideLinkInBreadcrumb: true,
 }
 
 const message: SideNav={
@@ -76,4 +80,3 @@ export const routes: Map<Role, SideNav[]> = new Map([
     [Roles.manager, [overview, students, teachers, courses, message]],
   ]);
 
-  

@@ -42,6 +42,7 @@ Plan of Coding Steps:
         - localStorage中有token时自动跳转dashboard
         tip:
         首次定向到login page
-2. dashboard
-        - 退出登录
-        - 加logo
+
+All Course
+        - UI: 用card or List组件; infiniteScroll实现滚动加载; BackTop
+        - 写fetch course的API获取所有课程数据；
