@@ -6,7 +6,6 @@ import { useRouter } from "next/router";
 import CourseListItem from "../../../../components/course/courseListItem";
 import { Course } from "../../../../lib/model/course";
 import styled from 'styled-components';
-import Item from "antd/lib/list/Item";
 
 const { Panel } = Collapse;
 
@@ -115,12 +114,12 @@ export default function Page(props: { id: number }) {
     'Saturday',
   ];
 
-  const columns = weekDays.map((title: string, index)=>{
+  const columns = weekDays.map((title: string, index:number)=>{
     const target: string =
     courseInfo?.schedule.classTime.find((item: string) => item.toLocaleLowerCase().includes(title.toLocaleLowerCase())) || '';
     const time = target.split(' ')[1];
 
-    return { title, key: index, align: 'center', render: () => time };
+    return { title, key: index, render: () => time };
   })
 
   const dataSource = new Array(1).fill({ id: 0 });
@@ -165,7 +164,7 @@ export default function Page(props: { id: number }) {
               <Steps
                 size="small"
                 current={activeChapterIndex}
-                style={{ width: "auto" }}
+                style={{ width: "auto"}}
               >
                 {courseInfo?.schedule.chapters.map((item: any) => {
                   return <Steps.Step key={item.id} title={item.name} />;

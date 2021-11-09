@@ -70,7 +70,7 @@ export function AppLayout(props: any) {
 
   return (
     <Layout style={{ height: "100vh"}}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
+      <Sider trigger={null} collapsible collapsed={collapsed} style={{position: "fixed", height: "100vh"}}>
         <div
           style={{
             height: "60px",
@@ -94,8 +94,9 @@ export function AppLayout(props: any) {
         </Menu>
       </Sider>
       <Layout className="site-layout">
-        <Header className="site-layout-background">
+        <Header className="site-layout-background" style={{position: "relative", width: "100vw"}}>
           <Button
+            style={{marginLeft: "10vw"}}
             onClick={toggle}
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           ></Button>
@@ -110,8 +111,11 @@ export function AppLayout(props: any) {
           className="site-layout-background"
           style={{
             margin: "24px 16px",
-            padding: 24,
+            // padding: 24,
             //minHeight: 280,
+            position: "relative",
+            left: "10vw",
+            width: "88vw"
           }}
         >
           <AppBreadcrumb></AppBreadcrumb>
