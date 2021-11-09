@@ -1,12 +1,67 @@
 import { AppLayout } from "../../../../components/layout/layout";
 import React, { useState, useEffect, useCallback } from "react";
-import { Card, Row, Col, Badge, Steps, Tag, Collapse } from "antd";
+import { Card, Row, Col, Badge, Steps, Tag, Collapse, Table} from "antd";
 import { fetchCourseById } from "../../../../lib/api";
 import { useRouter } from "next/router";
 import CourseListItem from "../../../../components/course/courseListItem";
 import { Course } from "../../../../lib/model/course";
+import styled from 'styled-components';
+import Item from "antd/lib/list/Item";
 
 const { Panel } = Collapse;
+
+export enum CourseStatusText {
+    'pending',
+    'processing',
+    'finished',
+  }
+  
+  
+  export enum CourseStatusColor {
+    'orange',
+    'default',
+    'green',
+  }
+
+const StyledCol = styled(Col)`
+    text-align: center;
+    margin: 0 auto;
+    border: 1px solid #f0f0f0;
+    border-left: none;
+    border-bottom: none;
+    :last-child {
+        border-right: none;
+    };
+    b {
+        color: #7356f1;
+        font-size: 24px;
+    };
+    p {
+        margin-bottom: 0;
+      }
+`;
+
+const StepsRow = styled(Row)`
+  overflow-x: scroll;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  .ant-steps-item-title {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 6em;
+  }
+  padding: 10px 0;
+`;
+
+const StyledRow = styled(Row)`
+  width: calc(100% + 48px);
+  margin: 0 0 0 -24px !important;
+`;
+
+
 
 export async function getServerSideProps(context: any) {
   const { id } = context.params;
@@ -50,24 +105,54 @@ export default function Page(props: { id: number }) {
     getCourseDetails();
   }, [getCourseDetails]);
 
+  const weekDays = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
+
+  const columns = weekDays.map((title: string, index)=>{
+    const target: string =
+    courseInfo?.schedule.classTime.find((item: string) => item.toLocaleLowerCase().includes(title.toLocaleLowerCase())) || '';
+    const time = target.split(' ')[1];
+
+    return { title, key: index, align: 'center', render: () => time };
+  })
+
+  const dataSource = new Array(1).fill({ id: 0 });
+
+  const getChapterExtra = (source, index) => {
+    const activeIndex = source.chapters.findIndex((item) => item.id === source.current);
+    // const status = index === activeIndex ? 1 : index < activeIndex ? 0 : 2;
+    const status = source.status;
+  
+    return <Tag color={CourseStatusColor[status]}>{CourseStatusText[status]}</Tag>;
+  };
+
   return (
     <AppLayout>
+    <div style={{backgroundColor: "white"}}>
       <Row gutter={[6, 16]}>
         <Col span={8}>
           <CourseListItem {...courseInfo}>
-            <Row>
+            <StyledRow>
               {salesInfo?.map((item, index) => {
-                //console.log(item);
-                <Col key={index} span={6}>
-                  <b>{item.value}</b>
-                  <p>{item.label}</p>
-                </Col>;
+                return (
+                  <StyledCol key={index} span={6}>
+                    <b>{item.value}</b>
+                    <p>{item.label}</p>
+                  </StyledCol>
+                );
               })}
-            </Row>
+            </StyledRow>
           </CourseListItem>
         </Col>
         <Col span={15} offset={1}>
-          <Card style={{}}>
+          <Card>
             <h2 style={{ color: "blue" }}>Course Detail</h2>
             <h3>Create Time</h3>
             <br></br>
@@ -76,48 +161,50 @@ export default function Page(props: { id: number }) {
             <Badge dot={true} color="green" offset={[2, 5]}>
               <h3>Status</h3>
             </Badge>
-            <div>
+            <StepsRow>
               <Steps
                 size="small"
                 current={activeChapterIndex}
                 style={{ width: "auto" }}
               >
                 {courseInfo?.schedule.chapters.map((item: any) => {
-                  console.log(item.name);
-                  <Steps.Step key={item.id} title={item.name} />;
+                  return <Steps.Step key={item.id} title={item.name} />;
                 })}
               </Steps>
-            </div>
+            </StepsRow>
             <h3>Course Code</h3>
             <p>{courseInfo?.uid}</p>
             <h3>Class Time</h3>
+            <Table bordered columns ={columns} dataSource= {dataSource} pagination={false}/>
             <h3>Category</h3>
-            <div>
+            <Row>
               {courseInfo?.type.map((item) => (
                 <Tag color={"geekblue"} key={item.id}>
                   {item.name}
                 </Tag>
               ))}
-            </div>
+            </Row>
             <h3>Description</h3>
             <p>{courseInfo?.detail}</p>
             <h3>Chapter</h3>
             {courseInfo?.schedule && (
               <Collapse defaultActiveKey={courseInfo.schedule.current}>
-                {courseInfo.schedule.chapters.map((item: any) => {
+                {courseInfo.schedule.chapters.map((item: any, index) => {
+                  return(
                   <Panel
                     header={item.name}
                     key={item.id}
-                    extra={<Tag>pending</Tag>}
+                    extra={getChapterExtra(courseInfo.schedule, index)}
                   >
                     <p>{item.content}</p>
-                  </Panel>;
+                  </Panel>);
                 })}
               </Collapse>
             )}
           </Card>
         </Col>
       </Row>
+    </div>
     </AppLayout>
   );
 }

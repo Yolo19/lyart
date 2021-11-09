@@ -14,12 +14,12 @@ const StyledRow = styled(Row)`
     width: 100%;
     height: 1px;
   }
-  padding: 10px;
+  padding: 10px 0;
 `;
 
 export default function CourseListItem(props: React.PropsWithChildren<Course>) {
   return (
-    <Card cover={<img src={props.cover} style={{ height: 260 }} />}>
+    <Card cover={<img src={props.cover} style={{ height: 260}} />}>
       <Row>
         <h3>{props.name}</h3>
       </Row>
