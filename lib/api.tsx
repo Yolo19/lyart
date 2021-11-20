@@ -3,6 +3,7 @@ import { AES } from "crypto-js";
 import { LoginRequest } from "./model/login";
 import { AllCourseRequest } from "./model/course";
 import { AddStudentRequest, EditStudentFormValue } from "./model/student";
+import { AddCourseRequest, AddCourseScheduleRequest} from "./model/course"
 
 const baseURL = "https://cms.chtoma.com/api";
 
@@ -101,3 +102,30 @@ export const fetchCourseById = (userId: number)=>{
     `${baseURL}/courses/detail?id=${userId}`
   );
 }
+
+export const fetchCourseCode = ()=>{
+  return axiosInstance.get(
+    `${baseURL}/courses/code`
+  );
+}
+
+export const fetchCourseTypes = ()=>{
+  return axiosInstance.get(
+    `${baseURL}/courses/type`
+  );
+}
+
+export const addCourse = (params: AddCourseRequest)=>{
+  return axiosInstance.post(`${baseURL}/courses`, params);
+}
+
+export const addCourseSchedule = (params: AddCourseScheduleRequest)=>{
+  return axiosInstance.put(`${baseURL}/courses/schedule`, params);
+}
+
+export const fetchTeachers = (query: string)=>{
+  return axiosInstance.get(
+    `${baseURL}/teachers?query=${query}`
+  );
+}
+

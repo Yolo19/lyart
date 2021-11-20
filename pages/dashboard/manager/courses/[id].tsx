@@ -126,7 +126,7 @@ export default function Page(props: { id: number }) {
 
   const getChapterExtra = (source, index) => {
     const activeIndex = source.chapters.findIndex((item) => item.id === source.current);
-    // const status = index === activeIndex ? 1 : index < activeIndex ? 0 : 2;
+    //const status = index === activeIndex ? 1 : index < activeIndex ? 0 : 2;
     const status = source.status;
   
     return <Tag color={CourseStatusColor[status]}>{CourseStatusText[status]}</Tag>;
@@ -157,7 +157,7 @@ export default function Page(props: { id: number }) {
             <br></br>
             <h3>Start Time</h3>
             <p>{courseInfo?.startTime}</p>
-            <Badge dot={true} color="green" offset={[2, 5]}>
+            <Badge dot={true} color="green" offset={[5, 5]}>
               <h3>Status</h3>
             </Badge>
             <StepsRow>

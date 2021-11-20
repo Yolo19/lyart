@@ -1,3 +1,4 @@
+
 export type Role = "student" | "teacher" | "manager";
 
 export interface LoginFormValues {

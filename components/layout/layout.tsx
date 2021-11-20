@@ -70,7 +70,7 @@ export function AppLayout(props: any) {
 
   return (
     <Layout style={{ height: "100vh"}}>
-      <Sider trigger={null} collapsible collapsed={collapsed} style={{position: "fixed", height: "100vh"}}>
+      <Sider trigger={null} collapsible collapsed={collapsed} style={{position: "fixed", height: "100vh", zIndex: 10}}>
         <div
           style={{
             height: "60px",
@@ -93,8 +93,11 @@ export function AppLayout(props: any) {
           {sideNave && renderMenuItems(sideNave)}
         </Menu>
       </Sider>
-      <Layout className="site-layout">
-        <Header className="site-layout-background" style={{position: "relative", width: "100vw"}}>
+
+      
+
+      <Layout className="site-layout" style={{position: "absolute",left: "10vw", width: "calc(100% - 10vw)"}}>
+      <Header className="site-layout-background" style={{position: "fixed", top: "0px", zIndex: 10, width:"calc(100% - 10vw)"}}>
           <Button
             style={{marginLeft: "10vw"}}
             onClick={toggle}
@@ -110,16 +113,14 @@ export function AppLayout(props: any) {
         <Content
           className="site-layout-background"
           style={{
-            margin: "24px 16px",
-            // padding: 24,
-            //minHeight: 280,
-            position: "relative",
-            left: "10vw",
-            width: "88vw"
+            margin: "100px 26px",
+            minHeight: 280,
           }}
         >
           <AppBreadcrumb></AppBreadcrumb>
-          {props.children}
+          <div style={{backgroundColor: "white"}}>
+            {props.children}
+          </div>
         </Content>
       </Layout>
     </Layout>

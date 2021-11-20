@@ -48,4 +48,22 @@ export interface AllCourseRequest{
     typeId?: number;
     userId?: number;
 };  
- 
+
+export type AddCourseRequest = Pick<
+  Course,
+  | 'cover'
+  | 'detail'
+  | 'duration'
+  | 'durationUnit'
+  | 'maxStudents'
+  | 'name'
+  | 'price'
+  | 'startTime'
+  | 'uid'
+> & { type: number | number[]; teacherId: number };
+
+
+export interface AddCourseScheduleRequest {
+  chapters: [{ name: string; content: string }];
+  classTime: [{ weekday: string; time: Date }];
+}
