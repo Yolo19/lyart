@@ -16,27 +16,22 @@ import {
   Upload,
   Spin,
 } from "antd";
-import { fetchCourseCode, fetchTeachers, fetchCourseTypes } from "../../lib/api";
+import {
+  fetchCourseCode,
+  fetchTeachers,
+  fetchCourseTypes,
+} from "../../lib/api";
 import {
   CloseCircleOutlined,
   InboxOutlined,
   KeyOutlined,
 } from "@ant-design/icons";
 import { AddCourseRequest } from "../../lib/model/course";
-import { format, getTime } from 'date-fns';
 import moment from "moment";
 
 const { Option } = Select;
 
-const selectAfter = (
-  <Select defaultValue="month" className="select-after">
-    <Option value="year">year</Option>
-    <Option value="month">month</Option>
-    <Option value="day">day</Option>
-    <Option value="week">week</Option>
-    <Option value="hour">hour</Option>
-  </Select>
-);
+const units = ["year", "month", "day", "week", "hour"];
 
 const { Dragger } = Upload;
 
@@ -73,29 +68,45 @@ function CreateCourse(props, ref) {
     });
   };
 
-  const getCourseTypes = ()=>{
+  const getCourseTypes = () => {
     fetchCourseTypes()
-        .then((res)=>{
-            console.log(res);
-            setCourseTypes(res.data.data)
-        })
-        .catch(()=>{message.error("error")})
-  }
+      .then((res) => {
+        console.log(res);
+        setCourseTypes(res.data.data);
+      })
+      .catch(() => {
+        message.error("error");
+      });
+  };
 
   useEffect(() => {
     getCode();
   }, []);
 
-  useImperativeHandle(ref, () => ({
+  useImperativeHandle<
+    { handleForm: () => AddCourseRequest },
+    { handleForm: () => AddCourseRequest }
+  >(ref, () => ({
     handleForm: () => {
-      const value = form.getFieldsValue(["name", "teacher","type","uid","startTime","price","maxStudents", "duration", "description", "cover"]);   
+      const value = form.getFieldsValue([
+        "name",
+        "teacher",
+        "type",
+        "uid",
+        "startTime",
+        "price",
+        "maxStudents",
+        "duration",
+        "durationUnit",
+        "description",
+        "cover",
+      ]);
       const req: AddCourseRequest = {
         ...value,
         startTime: moment(value.startTime).format("YYYY-MM-DD"),
-        durationUnit: 2,
         teacherId: value.teacher,
         detail: value.description,
-      }
+      };
       console.log(value);
       return req;
     },
@@ -107,6 +118,7 @@ function CreateCourse(props, ref) {
       layout="vertical"
       labelCol={{ offset: 1 }}
       wrapperCol={{ offset: 1 }}
+      style={{ paddingRight: "20px" }}
     >
       <Row style={{ margin: "20px 0" }}>
         <Col span={8}>
@@ -160,8 +172,8 @@ function CreateCourse(props, ref) {
         <Col span={5}>
           <Form.Item label="Type" name="type" rules={[{ required: true }]}>
             <Select mode="multiple" onClick={getCourseTypes}>
-              {courseTypes.map(({id, name}) => (
-                <Option value={id} key={id} >
+              {courseTypes.map(({ id, name }) => (
+                <Option value={id} key={id}>
                   {name}
                 </Option>
               ))}
@@ -210,7 +222,27 @@ function CreateCourse(props, ref) {
             name="duration"
             rules={[{ required: true }]}
           >
-            <Input addonAfter={selectAfter} />
+            <Form.Item name="durationUnit">
+            <Input          
+              addonAfter={
+                <Select
+                  defaultValue="month"
+                  className="select-after"
+                  onChange={(unit) => {
+                    form.setFieldsValue({ unit });
+                  }}
+                >
+                  {units.map((unit, index) => {
+                    return (
+                      <Option key={index} value={unit}>
+                        {unit}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              }
+            />
+            </Form.Item>
           </Form.Item>
         </Col>
 

@@ -47,6 +47,7 @@ export interface AllCourseRequest{
     uid?: string;	
     typeId?: number;
     userId?: number;
+    typeName?: string
 };  
 
 export type AddCourseRequest = Pick<

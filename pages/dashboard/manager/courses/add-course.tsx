@@ -11,26 +11,40 @@ const { Step } = Steps;
 
 export default function AddCourse() {
   const [current, setCurrent] = useState(0);
+  const [courseId, setCourseId] = useState();
+  const [scheduleId, setScheduleId] = useState();
   const submitRef = useRef();
   const submitScheduleRef = useRef();
   const createCourse = ()=>{
-    const values = submitRef.current.handleForm();
-    console.log(values);
+    if(submitRef.current){
+      const values = (submitRef.current as unknown as any).handleForm() ;
+      console.log(values);
     addCourse(values)
-      .then(()=>{
+      .then((res)=>{
         message.success("Success");
         setCurrent(current + 1);
+        const courseData = res.data.data;
+        setCourseId(courseData.id);
+        setScheduleId(courseData.scheduleId);
       })
       .catch(()=>{message.error("error")})
+    }
   }
 
   const submitCourse = () => {
-    const values = submitScheduleRef.current.handleScheduleForm();
+    const values = (submitScheduleRef.current as unknown as any).handleScheduleForm();
     console.log(values);
     const params = {
       ...values,
+      courseId: courseId,
+      scheduleId: scheduleId,
+      chapters: values.chapters.map((item: {name: string, content: string}, index: number) => ({
+        ...item,
+        order: index + 1,
+      })),
     }
-    addCourseSchedule(values)
+    console.log(params)
+    addCourseSchedule(params)
       .then(()=>{
         message.success("Success");
         setCurrent(current + 1);
@@ -49,7 +63,7 @@ export default function AddCourse() {
   },
   {
     title: "Success",
-    content: <Success />,
+    content: <Success courseId={courseId}/>,
   },
 ];
 

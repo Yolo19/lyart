@@ -129,3 +129,7 @@ export const fetchTeachers = (query: string)=>{
   );
 }
 
+export const fetchCourse = (data) => {
+  return axiosInstance.get(`${baseURL}/courses`,data);
+};
+

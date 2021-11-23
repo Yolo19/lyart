@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Button, Result} from 'antd';
 import { useUserRole } from "../../components/custom-hooks/login-state"
 
-export default function Success() { 
+export default function Success(props: any) { 
     const router = useRouter();
     const userRole = useUserRole();
 
@@ -16,7 +16,7 @@ export default function Success() {
           <Button
             type="primary"
             key="detail"
-            //onClick={() => router.push(`/dashboard/${userRole}/courses/${courseId}`)}
+            onClick={() => router.push(`/dashboard/${userRole}/courses/${props.courseId}`)}
           >
             Go Course
           </Button>,

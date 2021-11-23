@@ -10,21 +10,19 @@ import {
   Input,
   Form,
   Row,
-  DatePicker,
-  InputNumber,
   Select,
-  Upload,
   message,
   TimePicker
 } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { AddCourseRequest } from "../../lib/model/course";
 
 const { Option } = Select;
 
 function CourseSchedule(props:any , ref:any) {
   const [form] = Form.useForm();
 
-  useImperativeHandle(ref, () => ({
+  useImperativeHandle<{handleScheduleForm: () => AddCourseRequest}, {handleScheduleForm: () => AddCourseRequest}>(ref, () => ({
     handleScheduleForm: () => {
       const values = form.getFieldsValue(["chapters", "classTime"]);
       const submitValue = {
@@ -47,7 +45,7 @@ function CourseSchedule(props:any , ref:any) {
       style={{ padding: "0 1.6%" }}
       initialValues={initialValues}
     >
-      <Row style={{ padding: "20px 0" }}>
+      <Row style={{ padding: "20px 20px 20px 0" }}>
         <Col span={12}>
           <h2>Chapters</h2>
 
